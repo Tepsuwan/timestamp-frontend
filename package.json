@@ -1,0 +1,67 @@
+{
+  "name": "vue-paper-dashboard",
+  "version": "1.0.1",
+  "private": true,
+  "scripts": {
+    "build": "vue-cli-service build",
+    "e2e": "node test/e2e/runner.js",
+    "lint": "vue-cli-service lint",
+    "lint-fix": "vue-cli-service lint --fix",
+    "serve": "vue-cli-service serve --open",
+    "dev": "npm run serve"
+  },
+  "dependencies": {
+    "@fullcalendar/core": "^6.1.8",
+    "@fullcalendar/daygrid": "^6.1.8",
+    "@fullcalendar/interaction": "^6.1.8",
+    "@fullcalendar/timegrid": "^6.1.8",
+    "@fullcalendar/vue": "^6.1.8",
+    "@handsontable/vue": "^12.3.3",
+    "@kouts/vue-modal": "^2.1.12",
+    "@lbgm/pro-calendar-vue": "*",
+    "@mathieustan/vue-datepicker": "^0.2.11",
+    "axios": "^1.4.0",
+    "bootstrap": "4.6.2",
+    "chartist": "0.11.0",
+    "dateformat": "^5.0.3",
+    "dayspan-vuetify": "^0.4.0",
+    "dotenv": "^7.0.0",
+    "element-ui": "^2.15.13",
+    "es6-promise": "4.2.8",
+    "eslint-plugin-vue": "^9.8.0",
+    "express": "^4.18.2",
+    "handsontable": "^12.3.3",
+    "jsonwebtoken": "^9.0.0",
+    "moment": "^2.29.4",
+    "v-easy-dialog": "^1.0.6",
+    "vue": "2.7.14",
+    "vue-clickaway": "2.2.2",
+    "vue-full-calendar": "*",
+    "vue-notifyjs": "0.3.0",
+    "vue-router": "^3.0.1",
+    "vue-select": "^3.20.2",
+    "vue2-datepicker": "^3.11.1",
+    "vuedraggable": "^2.24.3",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "3.12.1",
+    "@vue/cli-plugin-eslint": "3.12.1",
+    "@vue/cli-service": "3.12.1",
+    "@vue/eslint-config-prettier": "5.1.0",
+    "sass": "1.56.2",
+    "sass-loader": "10.2.0",
+    "vue-template-compiler": "2.7.14"
+  },
+  "description": "A sample admin dashboard based on paper dashboard UI template",
+  "author": "cristian.jora <joracristi@gmail.com>",
+  "engines": {
+    "node": ">= 8.1.4",
+    "npm": ">= 5.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ]
+}
