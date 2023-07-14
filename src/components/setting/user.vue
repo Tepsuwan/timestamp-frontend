@@ -56,25 +56,20 @@
             <div>
               <h3>Edit user</h3>
 
-              <pre>{{ roles }}</pre>
-              {{ dataTable[scope.$index] }}
-              <br />
-              {{ dataTable[scope.$index].uid }}
-              {{ dataTable[scope.$index].name }}
-              {{ dataTable[scope.$index].role_name }}
-              <br />
               <el-form
                 :model="ruleForm2"
                 :rules="rules2"
                 ref="ruleForm2"
-                label-width="120px"
+                label-width="100px"
                 class="demo-ruleForm2"
               >
                 <el-form-item label="User name" prop="username2">
                   <select
                     class="custom-select"
                     :id="dataTable[scope.$index].id"
+                    :uid="dataTable[scope.$index].uid"
                     v-model="dataTable[scope.$index].uid"
+                    @click="username2Change($event)"
                   >
                     <option
                       v-for="item in dropdown"
@@ -88,7 +83,9 @@
                   <select
                     class="custom-select"
                     :id="dataTable[scope.$index].id"
-                    v-model="ruleForm2.role2"
+                    :role_key="dataTable[scope.$index].role_key"
+                    v-model="dataTable[scope.$index].role_key"
+                    @click="role2Change($event)"
                   >
                     <option
                       v-for="item in roles"
@@ -103,10 +100,8 @@
                     size="small"
                     type="warning"
                     @click="submitForm2('ruleForm2')"
+                    style="width: 100px"
                     >Edit</el-button
-                  >
-                  <el-button size="small" @click="resetForm2('ruleForm2')"
-                    >Reset</el-button
                   >
                 </el-form-item>
               </el-form>
@@ -114,7 +109,9 @@
             <div><br /></div>
             <p-button
               :id="dataTable[scope.$index].id"
-              @click.native="reasonEdit"
+              :uid="dataTable[scope.$index].uid"
+              :role_key="dataTable[scope.$index].role_key"
+              @click.native="roleEdit"
               type="warning"
               outline
               size="sm"
@@ -127,7 +124,7 @@
 
           <p-button
             :id="dataTable[scope.$index].id"
-            @click.native="reasonDelete"
+            @click.native="roleDelete"
             type="danger"
             size="sm"
             slot="reference"
@@ -146,6 +143,7 @@ import moment from "moment";
 export default {
   data() {
     return {
+      visible: false,
       idCommad2: "",
       uid: "",
       value: "Select",
@@ -184,14 +182,14 @@ export default {
       rules2: {
         username2: [
           {
-            required: true,
+            //required: true,
             message: "Please select username",
             trigger: "change",
           },
         ],
         role2: [
           {
-            required: true,
+            //required: true,
             message: "Please select role",
             trigger: "change",
           },
@@ -282,45 +280,42 @@ export default {
       this.$refs[formName].resetFields();
     },
 
-    submitForm2(formName2) {
-      this.$refs[formName2].validate((valid) => {
-        if (valid) {
-          alert("submit!");
-          console.log(this.ruleForm2);
+    submitForm2() {
+      alert("submit!");
+      // console.log(this.ruleForm2.username2);
+      // console.log(this.ruleForm2.role2);
 
-          const data = {
-            idCommand: this.idCommand2,
-            uid: this.ruleForm2.username2,
-            roleKey: this.ruleForm2.role2,
-            createUid: this.uid,
-            createDate: this.currentTimeDate,
-          };
-          // console.log(data);
-          const headers = { "x-access-token": this.token };
-          axios
-            .post("http://192.168.5.75:5000/userUpdate", data, {
-              headers: headers,
-            })
-            .then((response) => {
-              console.log("Insert user success ", response);
-            });
+      const data = {
+        idCommand: this.idCommand2,
+        uid: this.ruleForm2.username2,
+        roleKey: this.ruleForm2.role2,
+        createUid: this.uid,
+        createDate: this.currentTimeDate,
+      };
+      console.log(data);
+      const headers = { "x-access-token": this.token };
+      axios
+        .post("http://192.168.5.75:5000/userUpdate", data, {
+          headers: headers,
+        })
+        .then((response) => {
+          console.log("Update user success ", response);
+        });
 
-          this.employee();
-        } else {
-          console.log("error submit!!");
-          return false;
-        }
-      });
+      this.employee();
     },
     resetForm2(formName2) {
       this.$refs[formName2].resetFields();
     },
 
-    reasonEdit(e) {
+    roleEdit(e) {
       this.idCommand2 = e.target.getAttribute("id");
-      //console.log(this.idCommand2);
+
+      this.ruleForm2.username2 = e.target.getAttribute("uid");
+      this.ruleForm2.role2 = e.target.getAttribute("role_key");
+      //console.log(this.ruleForm2);
     },
-    reasonDelete(e) {
+    roleDelete(e) {
       var idCommand = e.target.getAttribute("id");
       //console.log(idCommad);
       //alert(e.target.getAttribute("id"));
@@ -337,6 +332,15 @@ export default {
           console.log("Delete reason success ", response);
         });
       this.employee();
+    },
+    username2Change(e) {
+      this.ruleForm2.username2 = e.target.getAttribute("uid");
+      //console.log(this.ruleForm2.username2);
+    },
+    role2Change(e) {
+      this.ruleForm2.role2 = e.target.getAttribute("role_key");
+      //alert(this.ruleForm2.role2);
+      //console.log(this.ruleForm2.role2);
     },
   },
   mounted() {

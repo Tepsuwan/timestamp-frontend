@@ -32,7 +32,8 @@
       <el-table-column prop="reason_day" label="Day"> </el-table-column>
       <el-table-column label="Operations">
         <template slot-scope="scope">
-          <el-popover placement="right" trigger="click">
+          <!--  -->
+          <el-popover placement="left" trigger="click">
             <div>
               <h3>Edit Reason</h3>
               <el-form
@@ -41,16 +42,21 @@
                 ref="editForm"
                 class="demo-editForm"
               >
-                <el-form-item prop="reasonName">
-                  <el-input
-                    v-model="editForm.reasonName"
-                    placeholder="Please input reason name"
-                  ></el-input>
+                <el-form-item>
+                  <input
+                    type="text"
+                    style="width: 400px"
+                    :value="dataTable[scope.$index].reason_name"
+                    @input="reasonNameInput"
+                  />
                 </el-form-item>
-                <el-form-item prop="reasonDay">
+
+                <el-form-item>
                   <el-input
                     v-model="editForm.reasonDay"
-                    placeholder="Please input reason day"
+                    :value="dataTable[scope.$index].reason_day"
+                    style="width: 400px"
+                    @input="reasonDayInput"
                   ></el-input>
                 </el-form-item>
 
@@ -59,15 +65,18 @@
                     type="primary"
                     plain
                     @click="submitForm2('editForm')"
+                    size="small"
+                    style="width: 100px"
                     >Save</el-button
                   >
-                  <el-button @click="resetForm2('editForm')">Reset</el-button>
                 </el-form-item>
               </el-form>
             </div>
             <div><br /></div>
             <p-button
               :id="dataTable[scope.$index].id"
+              :reasonName="dataTable[scope.$index].reason_name"
+              :reasonDay="dataTable[scope.$index].reason_day"
               @click.native="reasonEdit"
               type="warning"
               outline
@@ -77,6 +86,7 @@
               Edit
             </p-button>
           </el-popover>
+          <!--  -->
           &nbsp;
           <p-button
             :id="dataTable[scope.$index].id"
@@ -133,23 +143,6 @@ export default {
       editForm: {
         reasonName: "",
         reasonDay: "",
-      },
-
-      edit: {
-        reasonName: [
-          {
-            required: true,
-            message: "Please input reason day",
-            trigger: "blur",
-          },
-        ],
-        reasonDay: [
-          {
-            required: true,
-            message: "Please reason day",
-            trigger: "blur",
-          },
-        ],
       },
     };
   },
@@ -232,12 +225,12 @@ export default {
     resetForm(formName) {
       this.$refs[formName].resetFields();
     },
-    resetForm2(formName2) {
-      this.$refs[formName2].resetFields();
-    },
+
     reasonEdit(e) {
       this.idCommand = e.target.getAttribute("id");
-      //console.log(e.target.getAttribute("id"));
+
+      this.editForm.reasonName = e.target.getAttribute("reasonName");
+      this.editForm.reasonDay = e.target.getAttribute("reasonDay");
     },
     reasonDelete(e) {
       this.idCommad2 = e.target.getAttribute("id");
@@ -256,6 +249,14 @@ export default {
           console.log("Delete reason success ", response);
         });
       this.reasonSetting();
+    },
+    reasonNameInput(e) {
+      this.editForm.reasonName = e.target.value;
+      //console.log(e.target.value);
+    },
+    reasonDayInput(e) {
+      this.editForm.reasonDay = e.target.value;
+      //console.log(this.ruleForm2.roleKey2);
     },
   },
   mounted() {

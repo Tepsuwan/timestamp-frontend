@@ -42,6 +42,7 @@
           <el-popover placement="right" trigger="click">
             <div>
               <h3>Edit Reason</h3>
+
               <el-form
                 :model="editForm"
                 :rules="edit"
@@ -49,16 +50,21 @@
                 class="demo-editForm"
               >
                 <el-form-item prop="reasonName">
-                  <el-input
-                    v-model="editForm.reasonName"
-                    placeholder="Start Ex (08:00)"
-                  ></el-input>
+                  <input
+                    type="text"
+                    style="width: 400px"
+                    @input="startInput"
+                    :value="dataTable[scope.$index].work_shift_start"
+                  />
                 </el-form-item>
+
                 <el-form-item prop="reasonDay">
-                  <el-input
-                    v-model="editForm.reasonDay"
-                    placeholder="Stop Ex (08:00)"
-                  ></el-input>
+                  <input
+                    type="text"
+                    style="width: 400px"
+                    @input="stopInput"
+                    :value="dataTable[scope.$index].work_shift_stop"
+                  />
                 </el-form-item>
 
                 <el-form-item>
@@ -66,15 +72,18 @@
                     type="primary"
                     plain
                     @click="submitForm2('editForm')"
+                    size="small"
+                    style="width: 100px"
                     >Save</el-button
                   >
-                  <el-button @click="resetForm2('editForm')">Reset</el-button>
                 </el-form-item>
               </el-form>
             </div>
             <div><br /></div>
             <p-button
               :id="dataTable[scope.$index].id"
+              :start="dataTable[scope.$index].work_shift_start"
+              :stop="dataTable[scope.$index].work_shift_stop"
               @click.native="reasonEdit"
               type="warning"
               outline
@@ -134,25 +143,8 @@ export default {
         ],
       },
       editForm: {
-        reasonName: "",
-        reasonDay: "",
-      },
-
-      edit: {
-        reasonName: [
-          {
-            required: true,
-            message: "Please input start",
-            trigger: "blur",
-          },
-        ],
-        reasonDay: [
-          {
-            required: true,
-            message: "Please stop",
-            trigger: "blur",
-          },
-        ],
+        start: "",
+        stop: "",
       },
     };
   },
@@ -217,8 +209,8 @@ export default {
           const headers = { "x-access-token": this.token };
           const data2 = {
             idCommand: this.idCommand,
-            start: this.editForm.reasonName,
-            stop: this.editForm.reasonDay,
+            start: this.editForm.start,
+            stop: this.editForm.stop,
             createUid: this.uid,
             createDate: this.currentTimeDate,
           };
@@ -242,12 +234,12 @@ export default {
     resetForm(formName) {
       this.$refs[formName].resetFields();
     },
-    resetForm2(formName2) {
-      this.$refs[formName2].resetFields();
-    },
+
     reasonEdit(e) {
       this.idCommand = e.target.getAttribute("id");
-      //console.log(e.target.getAttribute("id"));
+
+      this.editForm.start = e.target.getAttribute("start");
+      this.editForm.stop = e.target.getAttribute("stop");
     },
     reasonDelete(e) {
       this.idCommad2 = e.target.getAttribute("id");
@@ -266,6 +258,14 @@ export default {
           console.log("Delete reason success ", response);
         });
       this.reasonSetting();
+    },
+    startInput(e) {
+      this.editForm.start = e.target.value;
+      //console.log(this.editForm.start);
+    },
+    stopInput(e) {
+      this.editForm.stop = e.target.value;
+      //console.log(this.editForm.stop);
     },
   },
   mounted() {

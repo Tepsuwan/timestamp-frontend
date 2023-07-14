@@ -48,52 +48,66 @@
       <el-table-column prop="role_key" label="Key"> </el-table-column>
       <el-table-column label="Operations">
         <template slot-scope="scope">
-          <el-popover placement="right" trigger="click">
+          <!--  -->
+          <el-popover placement="left">
             <div>
               <h3>Role edit</h3>
+
               <el-form
                 :model="ruleForm2"
-                :rules="rules2"
                 ref="ruleForm2"
                 class="demo-ruleForm2"
               >
-                <el-form-item prop="roleName2">
-                  <el-input
-                    v-model="ruleForm2.roleName2"
-                    placeholder="Please input role name"
-                  ></el-input>
+                <el-form-item>
+                  <input
+                    type="text"
+                    style="width: 400px"
+                    :value="dataTable[scope.$index].role_name"
+                    @input="roleNameInput"
+                  />
                 </el-form-item>
 
-                <el-form-item prop="roleKey2">
-                  <el-input
-                    v-model="ruleForm2.roleKey2"
-                    placeholder="Please input role key value"
-                  ></el-input>
+                <el-form-item>
+                  <input
+                    type="text"
+                    style="width: 400px"
+                    :value="dataTable[scope.$index].role_key"
+                    @input="roleKeyInput"
+                  />
                 </el-form-item>
 
-                <el-form-item prop="roleDescription2">
-                  <el-input
-                    v-model="ruleForm2.roleDescription2"
-                    placeholder="Please input role description (You can put it on or not.)"
-                  ></el-input>
+                <el-form-item>
+                  <input
+                    type="text"
+                    style="width: 400px"
+                    :value="dataTable[scope.$index].role_discription"
+                    @input="roleDescriptionInput"
+                  />
                 </el-form-item>
-
                 <el-form-item>
                   <el-button
                     size="small"
                     type="warning"
                     @click="submitForm2('ruleForm2')"
+                    style="width: 100px"
                     >Edit</el-button
                   >
-                  <el-button size="small" @click="resetForm2('ruleForm2')"
-                    >Reset</el-button
-                  >
+                  <!-- <el-button
+                    size="small"
+                    @click="visible = false"
+                    type="primary"
+                    plain
+                    >Cancel</el-button
+                  > -->
                 </el-form-item>
               </el-form>
             </div>
             <div><br /></div>
             <p-button
               :id="dataTable[scope.$index].id"
+              :roleName="dataTable[scope.$index].role_name"
+              :roleKey="dataTable[scope.$index].role_key"
+              :roleDescription="dataTable[scope.$index].role_discription"
               @click.native="roleEdit"
               type="warning"
               outline
@@ -103,6 +117,7 @@
               Edit
             </p-button>
           </el-popover>
+          <!--  -->
           &nbsp;
           <p-button
             :id="dataTable[scope.$index].id"
@@ -125,6 +140,7 @@ import axios from "axios";
 export default {
   data() {
     return {
+      visible: false,
       dataTable: [],
       name: "",
       day: "",
@@ -151,35 +167,11 @@ export default {
             trigger: "blur",
           },
         ],
-        // roleDescription: [
-        //   {
-        //     required: true,
-        //     message: "Please input role description",
-        //     trigger: "blur",
-        //   },
-        // ],
       },
       ruleForm2: {
-        roleName2: "",
+        roleName2: "5555",
         roleDescription2: "",
         roleKey2: "",
-      },
-
-      rules2: {
-        roleName2: [
-          {
-            required: true,
-            message: "Please input role name",
-            trigger: "blur",
-          },
-        ],
-        roleKey2: [
-          {
-            required: true,
-            message: "Please input role key value",
-            trigger: "blur",
-          },
-        ],
       },
     };
   },
@@ -233,43 +225,35 @@ export default {
     resetForm3(formName3) {
       this.$refs[formName3].resetFields();
     },
-    submitForm2(formName2) {
-      this.$refs[formName2].validate((valid) => {
-        if (valid) {
-          //alert("Insert reason success.");
-          //console.log(this.ruleForm);
+    submitForm2() {
+      const data = {
+        idCommand: this.idCommand2,
+        roleName: this.ruleForm2.roleName2,
+        roleDescription: this.ruleForm2.roleDescription2,
+        roleKey: this.ruleForm2.roleKey2,
+        createUid: this.uid,
+        createDate: this.currentTimeDate,
+      };
+      console.log(data);
+      const headers = { "x-access-token": this.token };
+      axios
+        .post("http://192.168.5.75:5000/roleUpdate", data, {
+          headers: headers,
+        })
+        .then((response) => {
+          console.log("Insert reason success ", response);
+        });
 
-          const data = {
-            idCommand: this.idCommand2,
-            roleName: this.ruleForm2.roleName2,
-            roleDescription: this.ruleForm2.roleDescription2,
-            roleKey: this.ruleForm2.roleKey2,
-            createUid: this.uid,
-            createDate: this.currentTimeDate,
-          };
-          console.log(data);
-          const headers = { "x-access-token": this.token };
-          axios
-            .post("http://192.168.5.75:5000/roleUpdate", data, {
-              headers: headers,
-            })
-            .then((response) => {
-              console.log("Insert reason success ", response);
-            });
+      this.roleLoad();
+    },
 
-          this.roleLoad();
-        } else {
-          console.log("error submit!!");
-          return false;
-        }
-      });
-    },
-    resetForm2(formName2) {
-      this.$refs[formName2].resetFields();
-    },
     roleEdit(e) {
       this.idCommand2 = e.target.getAttribute("id");
-      //console.log(e.target.getAttribute("id"));
+
+      this.ruleForm2.roleName2 = e.target.getAttribute("roleName");
+      this.ruleForm2.roleKey2 = e.target.getAttribute("roleKey");
+      this.ruleForm2.roleDescription2 =
+        e.target.getAttribute("roleDescription");
     },
     roleDelete(e) {
       this.idCommand = e.target.getAttribute("id");
@@ -288,6 +272,18 @@ export default {
         });
       this.roleLoad();
     },
+    roleNameInput(e) {
+      this.ruleForm2.roleName2 = e.target.value;
+      //console.log(this.ruleForm2.roleName2);
+    },
+    roleKeyInput(e) {
+      this.ruleForm2.roleKey2 = e.target.value;
+      //console.log(this.ruleForm2.roleKey2);
+    },
+    roleDescriptionInput(e) {
+      this.ruleForm2.roleDescription2 = e.target.value;
+      //console.log(this.ruleForm2.roleDescription2);
+    },
   },
   mounted() {
     this.token = JSON.parse(localStorage.user).token;
@@ -300,4 +296,16 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+input[type="text"],
+select {
+  width: 100%;
+  padding: 1px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  color: gray;
+}
+</style>

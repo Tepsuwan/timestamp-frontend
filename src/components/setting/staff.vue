@@ -48,8 +48,6 @@
           width="300"
         >
           <template slot-scope="scope">
-            <pre> {{ dropdown }}</pre>
-            {{ dataTable[scope.$index].work_shift_id }}
             <select
               class="custom-select"
               @change="onChange($event)"
