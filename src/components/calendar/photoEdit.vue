@@ -11,11 +11,12 @@
               placeholder="Select team shift"
               @change="teamShift($event)"
             >
+              <el-option value="All">All</el-option>
               <el-option
-                v-for="item in this.text"
-                :key="item.value"
-                :label="item.label"
-                :value="item.text"
+                v-for="item in text"
+                :key="item.label"
+                :label="item.text"
+                :value="item.value"
               >
               </el-option>
             </el-select>
@@ -31,10 +32,10 @@
               placeholder="Select next day"
             >
               <el-option
-                v-for="item in this.text"
-                :key="item.value"
-                :label="item.label"
-                :value="item.text"
+                v-for="item in text"
+                :key="item.label"
+                :label="item.text"
+                :value="item.value"
               >
               </el-option>
             </el-select>
@@ -70,18 +71,6 @@
         </FullCalendar>
       </div>
     </div>
-    <!-- <div class="demo-app">
-      <div class="demo-app-sidebar-section">
-        <h2>All Events ({{ currentEvents.length }})</h2>
-        <ul>
-          <li v-for="event in currentEvents" :key="event.id">
-            <b>{{ event.startStr }}</b>
-            <i>{{ event.title }}</i>
-            <p>{{ event }}</p>
-          </li>
-        </ul>
-      </div>
-    </div> -->
   </div>
 </template>
 
@@ -101,7 +90,7 @@ export default {
   data: function () {
     return {
       token: "",
-      value: this.workShiftTime,
+      value: "562dd71e18365",
       value2: "",
       uid: "",
       id: "",
@@ -145,25 +134,6 @@ export default {
   },
 
   methods: {
-    /*
-    handleDateSelect(selectInfo) {
-      let title = prompt("Please enter a new title for your event");
-      let calendarApi = selectInfo.view.calendar;
-      console.log("title", selectInfo);
-      calendarApi.unselect();
-
-      if (title) {
-        calendarApi.addEvent({
-          id: createEventId(),
-          title,
-          start: selectInfo.startStr,
-          end: selectInfo.endStr,
-          allDay: selectInfo.allDay,
-        });
-        console.log(title);
-      }
-    },
-*/
     setupDraggable() {
       new Draggable(document.getElementById("planned-tasks"), {
         itemSelector: ".fc-event",
@@ -173,7 +143,6 @@ export default {
             start: "",
             end: "",
             id: eventEl.getAttribute("id"),
-            color: "purple",
           };
           //console.log(eventEl.getAttribute("id"));
           return events;
@@ -182,17 +151,17 @@ export default {
     },
 
     handleDrop(info) {
-      info.event.setProp("backgroundColor", this.calendarBgColor);
-      info.event.setProp("borderColor", this.calendarBorderColor);
-      info.event.setExtendedProp(
-        "calendarBorderColor",
-        this.calendarBorderColor
-      );
+      // info.event.setProp("backgroundColor", this.calendarBgColor);
+      // info.event.setProp("borderColor", this.calendarBorderColor);
+      // info.event.setExtendedProp(
+      //   "calendarBorderColor",
+      //   this.calendarBorderColor
+      // );
 
       //console.log("Drop: ", info.event);
 
       var data = {
-        workShiftId: this.workShiftId,
+        workShiftId: this.value,
         //nextDayId: "55bf108f52d8a",
         uid: info.event.id,
         start: info.event.startStr,
@@ -202,21 +171,42 @@ export default {
         team: this.team,
         createDate: this.currentTimeDate,
       };
-      //console.log(data);
-      const headers = { "x-access-token": this.token };
-      axios
-        .post("http://192.168.5.75:5000/calendarInsert", data, {
-          headers: headers,
-        })
-        .then((response) => {
-          console.log("Delete Insert: ", response);
-        });
+      if ((this.value2 == "") | (this.value == "All")) {
+        alert("Please select next day.");
+        axios
+          .get("http://192.168.5.75:5000/loadCalendar", {
+            headers: {
+              "x-access-token": this.token,
+            },
+            params: {
+              team: this.team,
+              workShiftId: this.value,
+            },
+          })
+          .then((response) => {
+            this.calendaLoad = response.data.data;
+            this.calendarOptions.events = this.calendaLoad;
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      } else {
+        const headers = { "x-access-token": this.token };
+        axios
+          .post("http://192.168.5.75:5000/calendarInsert", data, {
+            headers: headers,
+          })
+          .then((response) => {
+            console.log("Calendar Insert: ", response);
+          });
+      }
     },
 
     handleEventClick(clickInfo) {
       if (
+        //console.log(clickInfo.event.extendedProps.uid),
         confirm(
-          `Are you sure you want to delete the event '${clickInfo.event.extendedProps.calendar_id}'`
+          `Are you sure you want to delete '${clickInfo.event.extendedProps.uid}'`
         )
       ) {
         clickInfo.event.remove();
@@ -293,8 +283,6 @@ export default {
         })
         .then((response) => {
           this.text = response.data.data;
-          this.text2 = response.data.data;
-          //console.log(this.text2);
         })
         .catch(function (error) {
           console.log(error);
@@ -308,20 +296,37 @@ export default {
             "x-access-token": this.token,
           },
           params: {
-            workShiftId: this.workShiftId,
+            workShiftId: this.workShiftId[0].value,
           },
         })
         .then((response) => {
-          this.workShiftTime = response.data[0].text;
-          //console.log(this.workShiftTime);
+          this.workShiftTime = response.data;
         })
         .catch(function (error) {
           console.log(error);
         });
     },
 
-    teamShift(event) {
-      console.log(event);
+    teamShift(e) {
+      this.value = e;
+      console.log(this.value);
+      axios
+        .get("http://192.168.5.75:5000/loadCalendar", {
+          headers: {
+            "x-access-token": this.token,
+          },
+          params: {
+            team: this.team,
+            workShiftId: this.value,
+          },
+        })
+        .then((response) => {
+          this.calendaLoad = response.data.data;
+          this.calendarOptions.events = this.calendaLoad;
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
     },
 
     nextDay(event) {
@@ -331,8 +336,8 @@ export default {
   mounted() {
     this.token = JSON.parse(localStorage.user).token;
     this.uid = JSON.parse(localStorage.user).token;
-    this.team = JSON.parse(localStorage.user).team;
-    this.workShiftId = "562dd71e18365";
+    this.team = "PE";
+    this.workShiftId = this.value;
     this.calendarBgColor = "rgb(0, 115, 183)";
     this.calendarBorderColor = "rgb(255, 255, 255)";
     this.setupDraggable();
@@ -351,6 +356,66 @@ export default {
 };
 </script>
 <style>
+.custom-select {
+  position: relative;
+  font-family: Arial;
+}
+
+.custom-select select {
+  display: none; /*hide original SELECT element: */
+}
+
+.select-selected {
+  background-color: DodgerBlue;
+}
+
+/* Style the arrow inside the select element: */
+.select-selected:after {
+  position: absolute;
+  content: "";
+  top: 14px;
+  right: 10px;
+  width: 0;
+  height: 0;
+  border: 6px solid transparent;
+  border-color: #fff transparent transparent transparent;
+}
+
+/* Point the arrow upwards when the select box is open (active): */
+.select-selected.select-arrow-active:after {
+  border-color: transparent transparent #fff transparent;
+  top: 7px;
+}
+
+/* style the items (options), including the selected item: */
+.select-items div,
+.select-selected {
+  color: #ffffff;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+  cursor: pointer;
+}
+
+/* Style items (options): */
+.select-items {
+  position: absolute;
+  background-color: DodgerBlue;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 99;
+}
+
+/* Hide the items when the select box is closed: */
+.select-hide {
+  display: none;
+}
+
+.select-items div:hover,
+.same-as-selected {
+  background-color: rgba(0, 0, 0, 0.1);
+}
 .demo-app {
   display: flex;
   min-height: 100%;

@@ -41,13 +41,6 @@
               type="checkbox"
               v-model="dataTable[scope.$index].access"
             />
-            <!-- <input
-            @change="check($event)"
-            type="checkbox"
-            v-model="dataTable[scope.$index].access"
-            v-if="dataTable[scope.$index].access == '1'"
-            checked
-          /> -->
           </template>
         </el-table-column>
         <el-table-column prop="workTime" label="Work Time" align="center">

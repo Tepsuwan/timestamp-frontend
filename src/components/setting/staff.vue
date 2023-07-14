@@ -48,12 +48,13 @@
           width="300"
         >
           <template slot-scope="scope">
+            <pre> {{ dropdown }}</pre>
+            {{ dataTable[scope.$index].work_shift_id }}
             <select
               class="custom-select"
               @change="onChange($event)"
               :id="dataTable[scope.$index].id"
               v-model="dataTable[scope.$index].work_shift_id"
-              placeholder="Select"
             >
               <option
                 v-for="item in dropdown"
@@ -64,6 +65,7 @@
             </select>
           </template>
         </el-table-column>
+
         <el-table-column prop="id" label="Extra" align="center">
           <template slot-scope="scope">
             <el-popover placement="right" trigger="click">

@@ -23,8 +23,8 @@
         <br />
       </div>
     </div>
-    <div v-if="active == 1"><pe /></div>
-    <div v-if="active == 2"><fp /></div>
+    <div v-if="active == 1"><fp /></div>
+    <div v-if="active == 2"><pe /></div>
     <div v-if="active == 3"><su /></div>
     <!-- <pe />
     <fp />
@@ -41,7 +41,7 @@ import su from "./su.vue";
 export default {
   data() {
     return {
-      active: "1",
+      active: "",
     };
   },
   methods: {},

@@ -6,22 +6,21 @@
         <div class="row d-flex justify-content-right">
           <div class="col-md-2">
             <p-button type="info" block @click.native="active = 1"
-              >Floor plan</p-button
+              >Holidays</p-button
             >
           </div>
           <div class="col-md-2">
             <p-button type="info" block @click.native="active = 2"
-              >Photo edit</p-button
+              >Summarry report</p-button
             >
           </div>
         </div>
         <br />
       </div>
     </div>
-    <div class="card">
-      <div v-if="active == 1"><holidays /></div>
-      <div v-if="active == 2"><summarys /></div>
-    </div>
+
+    <div v-if="active == 1"><holidays /></div>
+    <div v-if="active == 2"><summarys /></div>
   </div>
 </template>
 

@@ -40,6 +40,7 @@ Handsontable.renderers.registerRenderer(
 const ExampleComponent = defineComponent({
   data() {
     return {
+      date: "",
       from: {
         start: "",
         end: "",
@@ -90,10 +91,11 @@ const ExampleComponent = defineComponent({
             data: data,
             cells(row) {
               const cellProperties = {};
-              if (this.instance.getDataAtCell(row, 1) === "07/06/2023") {
+              if (this.instance.getDataAtCell(row, 1) == this.date) {
                 //No Color
-              } else {
                 cellProperties.renderer = firstRowRenderer;
+              } else {
+                //
               }
               return cellProperties;
             },
@@ -122,9 +124,14 @@ const ExampleComponent = defineComponent({
     const date = new Date();
     var fDate = moment(date);
     var tDate = moment(date);
+    this.date = fDate.format(`DD/MM/YYYY`);
     this.fDate = fDate.format(`YYYY-MM-DD`);
     this.tDate = tDate.format(`YYYY-MM-DD`);
     this.getDataAxios();
+
+    console.log(this.date);
+    // console.log(this.fDate);
+    // console.log(this.tDate);
 
     this.from.uid = JSON.parse(localStorage.user).id;
   },

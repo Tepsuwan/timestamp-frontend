@@ -2,25 +2,37 @@
   <div>
     <card>
       <template slot="header">
-        <h3 class="card-title">Name</h3>
-        <select
-          class="custom-select"
-          v-model="select"
-          @change="onChange($event)"
-          placeholder="Select"
-        >
-          <option
-            v-for="item in staff"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id"
-          ></option>
-        </select>
-        <br /><br />
+        <div>
+          <div class="row">
+            <div class="col-xl-1 col-lg-4 col-md-6"><strong>NAME</strong></div>
+            <div class="col-xl-11 col-lg-8 col-md-6">
+              <el-select
+                style="width: 400px"
+                v-model="select"
+                @change="click($event)"
+                placeholder="All selected"
+              >
+                <el-option
+                  style="width: 400px"
+                  v-for="item in staff"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                >
+                </el-option>
+              </el-select>
+            </div>
+          </div>
+        </div>
+        <!--  -->
+
+        <br />
         <div v-if="select != ''">
           <HotTable ref="myTable" :settings="hotSettings"> </HotTable>
-        </div> </template
-    ></card>
+          <br />
+        </div>
+      </template>
+    </card>
   </div>
 </template>
 
@@ -50,6 +62,38 @@ export default {
     };
   },
   methods: {
+    click(e) {
+      var uid = e;
+
+      this.getStaff();
+
+      axios
+        .get("http://192.168.5.75:5000/holidaysReport", {
+          headers: {
+            "x-access-token": this.token,
+          },
+          params: {
+            uid: uid,
+            year: this.year,
+          },
+        })
+        .then((response) => {
+          this.holidays = response.data;
+          //console.log(this.holidays);
+          const data = response.data.data;
+          //console.log(response.data);
+          this.$refs.myTable.hotInstance.updateSettings({
+            data: data,
+            columns: [
+              { data: "reason_name", readOnly: true },
+              { data: "reason_day", readOnly: true, className: "htCenter" },
+              { data: "reason_use", readOnly: true, className: "htCenter" },
+              { data: "reason_balance", readOnly: true, className: "htCenter" },
+            ],
+          });
+        });
+    },
+
     getStaff() {
       axios
         .get("http://192.168.5.75:5000/staff", {
@@ -64,9 +108,6 @@ export default {
     },
     onChange(event) {
       this.uid = event.target.value;
-      //console.log(event.target.value);
-
-      //console.log(this.uid);
       this.getStaff();
 
       axios

@@ -128,21 +128,10 @@
       <loadOnline></loadOnline>
     </div>
     <div v-if="activeTabs == 3"><LoadHolidays></LoadHolidays></div>
-    <!-- <el-button-group>
-      <el-button v-on:click="show = 1">11111</el-button>
-      <el-button v-on:click="show = 2">22222</el-button>
-      <el-button v-on:click="show = 3">33333</el-button>
-    </el-button-group>
-    <div v-if="show == 1">
-      <HotTable ref="myTable" :settings="hotSettings"></HotTable>
-    </div>
-    <div v-if="show == 2"><loadOnline></loadOnline></div>
-    <div v-if="show == 3"><LoadHolidays></LoadHolidays></div>-->
   </div>
 </template>
 
 <script>
-import Stamp from "./stamp.vue";
 import LoadOnline from "../../components/hansontable/loadOnline.vue";
 import LoadHolidays from "../../components/hansontable/loadHolidays.vue";
 import NotificationTemplate from "../../pages/Notifications/NotificationTemplate.vue";
@@ -351,10 +340,13 @@ const ExampleComponent = defineComponent({
         stamp_start_ip: "192.168.5.75",
         stamp_note: "",
         d: this.currentDate,
-        stamp_start: this.currentDate,
+        stamp_start: this.currentTimeDate,
         action: "start",
+        wsid: "55bf1082af74b",
+        ipAddress: this.ipAddress,
       };
       //this.token = JSON.parse(localStorage.user).token;
+      console.log(data);
       axios
         .post("http://192.168.5.75:5000/start", data, { headers: headers })
         .then((response) => {
@@ -416,17 +408,6 @@ const ExampleComponent = defineComponent({
           console.log(error);
         });
     },
-    ip() {
-      axios
-        .get("https://api.ipify.org?format=json")
-        .then((response) => {
-          this.ipAddress = response.data.ip;
-          //console.log(this.ipAddress);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    },
   },
   mounted() {
     const date = new Date();
@@ -446,6 +427,7 @@ const ExampleComponent = defineComponent({
     this.from.uid = JSON.parse(localStorage.user).id;
     this.token = JSON.parse(localStorage.user).token;
 
+    this.ipAddress = "192.168.5.75";
     this.getDataAxios();
     this.userData();
     // this.ip();

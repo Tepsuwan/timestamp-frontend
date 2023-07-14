@@ -55,8 +55,14 @@
           <el-popover placement="right" trigger="click">
             <div>
               <h3>Edit user</h3>
+
+              <pre>{{ roles }}</pre>
+              {{ dataTable[scope.$index] }}
+              <br />
+              {{ dataTable[scope.$index].uid }}
               {{ dataTable[scope.$index].name }}
               {{ dataTable[scope.$index].role_name }}
+              <br />
               <el-form
                 :model="ruleForm2"
                 :rules="rules2"
@@ -67,8 +73,8 @@
                 <el-form-item label="User name" prop="username2">
                   <select
                     class="custom-select"
-                    v-model="ruleForm2.username2"
-                    placeholder="Select"
+                    :id="dataTable[scope.$index].id"
+                    v-model="dataTable[scope.$index].uid"
                   >
                     <option
                       v-for="item in dropdown"
@@ -81,8 +87,8 @@
                 <el-form-item label="Role" prop="role">
                   <select
                     class="custom-select"
+                    :id="dataTable[scope.$index].id"
                     v-model="ruleForm2.role2"
-                    placeholder="Select"
                   >
                     <option
                       v-for="item in roles"

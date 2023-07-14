@@ -11,37 +11,20 @@
               placeholder="Select team shift"
               @change="teamShift($event)"
             >
+              <el-option value="All">All</el-option>
               <el-option
-                v-for="item in this.text"
-                :key="item.value"
-                :label="item.label"
-                :value="item.text"
+                v-for="item in text"
+                :key="item.label"
+                :label="item.text"
+                :value="item.value"
               >
               </el-option>
             </el-select>
           </div>
+          <br />
           <br />
           <br />
 
-          <strong>Next day</strong>
-          <div style="float: right">
-            <el-select
-              @change="nextDay($event)"
-              v-model="value2"
-              placeholder="Select next day"
-            >
-              <el-option
-                v-for="item in this.text"
-                :key="item.value"
-                :label="item.label"
-                :value="item.text"
-              >
-              </el-option>
-            </el-select>
-          </div>
-          <br />
-          <br />
-          <br />
           <p>
             <strong>Draggable</strong>
           </p>
@@ -101,8 +84,7 @@ export default {
   data: function () {
     return {
       token: "",
-      value: this.workShiftTime,
-      value2: "",
+      value: "55c871499df11",
       uid: "",
       id: "",
       team: "",
@@ -136,34 +118,11 @@ export default {
         eventClick: this.handleEventClick,
         eventsSet: this.handleEvents,
         eventReceive: this.handleDrop,
-        /*
-        eventReceive: function (info) {
-          console.log("Drop: ", info.event);
-        },*/
       },
     };
   },
 
   methods: {
-    /*
-    handleDateSelect(selectInfo) {
-      let title = prompt("Please enter a new title for your event");
-      let calendarApi = selectInfo.view.calendar;
-      console.log("title", selectInfo);
-      calendarApi.unselect();
-
-      if (title) {
-        calendarApi.addEvent({
-          id: createEventId(),
-          title,
-          start: selectInfo.startStr,
-          end: selectInfo.endStr,
-          allDay: selectInfo.allDay,
-        });
-        console.log(title);
-      }
-    },
-*/
     setupDraggable() {
       new Draggable(document.getElementById("planned-tasks"), {
         itemSelector: ".fc-event",
@@ -173,27 +132,23 @@ export default {
             start: "",
             end: "",
             id: eventEl.getAttribute("id"),
-            color: "purple",
           };
-          //console.log(eventEl.getAttribute("id"));
           return events;
         },
       });
     },
 
     handleDrop(info) {
+      /*
       info.event.setProp("backgroundColor", this.calendarBgColor);
       info.event.setProp("borderColor", this.calendarBorderColor);
       info.event.setExtendedProp(
         "calendarBorderColor",
         this.calendarBorderColor
       );
-
-      //console.log("Drop: ", info.event);
-
+      */
       var data = {
         workShiftId: this.workShiftId,
-        //nextDayId: "55bf108f52d8a",
         uid: info.event.id,
         start: info.event.startStr,
         end: info.event.startStr,
@@ -202,21 +157,42 @@ export default {
         team: this.team,
         createDate: this.currentTimeDate,
       };
-      //console.log(data);
-      const headers = { "x-access-token": this.token };
-      axios
-        .post("http://192.168.5.75:5000/calendarInsert", data, {
-          headers: headers,
-        })
-        .then((response) => {
-          console.log("Delete Insert: ", response);
-        });
+      if (this.value != "All") {
+        const headers = { "x-access-token": this.token };
+        axios
+          .post("http://192.168.5.75:5000/calendarInsert", data, {
+            headers: headers,
+          })
+          .then((response) => {
+            console.log("Calendar Insert: ", response);
+          });
+      } else {
+        alert("Please Select workShift");
+        axios
+          .get("http://192.168.5.75:5000/loadCalendar", {
+            headers: {
+              "x-access-token": this.token,
+            },
+            params: {
+              team: this.team,
+              workShiftId: this.value,
+            },
+          })
+          .then((response) => {
+            this.calendaLoad = response.data.data;
+            this.calendarOptions.events = this.calendaLoad;
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      }
     },
 
     handleEventClick(clickInfo) {
       if (
+        //console.log(clickInfo.event.extendedProps.uid),
         confirm(
-          `Are you sure you want to delete the event '${clickInfo.event.extendedProps.calendar_id}'`
+          `Are you sure you want to delete '${clickInfo.event.extendedProps.uid}'`
         )
       ) {
         clickInfo.event.remove();
@@ -277,7 +253,6 @@ export default {
             let id = response.data.data[i].id;
             this.id.push(id);
           }
-          //console.log(this.id);
         })
         .catch(function (error) {
           console.log(error);
@@ -294,7 +269,6 @@ export default {
         .then((response) => {
           this.text = response.data.data;
           this.text2 = response.data.data;
-          //console.log(this.text2);
         })
         .catch(function (error) {
           console.log(error);
@@ -313,7 +287,6 @@ export default {
         })
         .then((response) => {
           this.workShiftTime = response.data[0].text;
-          //console.log(this.workShiftTime);
         })
         .catch(function (error) {
           console.log(error);
@@ -321,18 +294,32 @@ export default {
     },
 
     teamShift(event) {
-      console.log(event);
-    },
-
-    nextDay(event) {
-      console.log(event);
+      this.value = event;
+      console.log(this.value);
+      axios
+        .get("http://192.168.5.75:5000/loadCalendar", {
+          headers: {
+            "x-access-token": this.token,
+          },
+          params: {
+            team: this.team,
+            workShiftId: this.value,
+          },
+        })
+        .then((response) => {
+          this.calendaLoad = response.data.data;
+          this.calendarOptions.events = this.calendaLoad;
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
     },
   },
   mounted() {
     this.token = JSON.parse(localStorage.user).token;
     this.uid = JSON.parse(localStorage.user).token;
     this.team = "FP";
-    this.workShiftId = "562dd71e18365";
+    this.workShiftId = this.value;
     this.calendarBgColor = "rgb(0, 115, 183)";
     this.calendarBorderColor = "rgb(255, 255, 255)";
     this.setupDraggable();
